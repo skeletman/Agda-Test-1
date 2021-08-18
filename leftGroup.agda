@@ -117,8 +117,8 @@ pf8 = λ _≡_ _⊕_ i e z → IsGroupL.identityL z
 pf9 : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → {a : A} → e ≡ (a ⊕ i a)
 pf9 _≡_ _⊕_ i e g = IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (pf1 _≡_ _⊕_ i e g) (pf2 _≡_ _⊕_ i e g)) (pf3 _≡_ _⊕_ i e g)) (pf4 _≡_ _⊕_ i e g)) (pf5 _≡_ _⊕_ i e g)) (pf6 _≡_ _⊕_ i e g)) (pf7 _≡_ _⊕_ i e g)) (pf8 _≡_ _⊕_ i e g)
 
-proof₁ : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → InverseR _≡_ _⊕_ i e
-proof₁ _≡_ _⊕_ i e g = IsGroupL.symmetric g (pf9 _≡_ _⊕_ i e g)
+GrpLImpliesInvR : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → InverseR _≡_ _⊕_ i e
+GrpLImpliesInvR _≡_ _⊕_ i e g = IsGroupL.symmetric g (pf9 _≡_ _⊕_ i e g)
 
 pf₂1 : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → {a : A} → (a ⊕ e) ≡ (a ⊕ (i a ⊕ a))
 pf₂1 = λ _≡_ _⊕_ i e z →
@@ -129,28 +129,28 @@ pf₂2 : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) �
 pf₂2 = λ _≡_ _⊕_ i e z → IsGroupL.symmetric z (IsGroupL.associative z)
 
 pf₂3 : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → {a : A} → ((a ⊕ i a) ⊕ a) ≡ (e ⊕ a)
-pf₂3 _≡_ _⊕_ i e g = IsGroupL.appmult g (proof₁ _≡_ _⊕_ i e g) (IsGroupL.reflexive g)
+pf₂3 _≡_ _⊕_ i e g = IsGroupL.appmult g (GrpLImpliesInvR _≡_ _⊕_ i e g) (IsGroupL.reflexive g)
 
 pf₂4 : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → {a : A} → (e ⊕ a) ≡ a
 pf₂4 = λ _≡_ _⊕_ i e → IsGroupL.identityL
 
-proof₂ : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IdentityR _≡_ _⊕_ e
-proof₂ _≡_ _⊕_ i e g = IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (pf₂1 _≡_ _⊕_ i e g) (pf₂2 _≡_ _⊕_ i e g)) (pf₂3 _≡_ _⊕_ i e g)) (pf₂4 _≡_ _⊕_ i e g)
+GrpLImpliesIdR : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IdentityR _≡_ _⊕_ e
+GrpLImpliesIdR _≡_ _⊕_ i e g = IsGroupL.transitive g (IsGroupL.transitive g (IsGroupL.transitive g (pf₂1 _≡_ _⊕_ i e g) (pf₂2 _≡_ _⊕_ i e g)) (pf₂3 _≡_ _⊕_ i e g)) (pf₂4 _≡_ _⊕_ i e g)
 
-proof : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IsGroupR _≡_ _⊕_ i e
-proof _≡_ _⊕_ i e g = record
+leftGroupImpliesRightGroup : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IsGroupR _≡_ _⊕_ i e
+leftGroupImpliesRightGroup _≡_ _⊕_ i e g = record
  { reflexive = IsGroupL.reflexive g
  ; symmetric = IsGroupL.symmetric g
  ; transitive = IsGroupL.transitive g
  ; appinv = IsGroupL.appinv g
  ; appmult = IsGroupL.appmult g
  ; associative = IsGroupL.associative g
- ; identityR = proof₂ _≡_ _⊕_ i e g
- ; inverseR = proof₁ _≡_ _⊕_ i e g
+ ; identityR = GrpLImpliesIdR _≡_ _⊕_ i e g
+ ; inverseR = GrpLImpliesInvR _≡_ _⊕_ i e g
  }
 
-leftOperationsSufficient : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IsGroup _≡_ _⊕_ i e
-leftOperationsSufficient _≡_ _⊕_ i e g = record
+leftGroupImpliesGroup : {A : Set} → (_≡_ : Rel A) → (_⊕_ : Op₂ A) → (i : Op₁ A) → (e : A) → IsGroupL _≡_ _⊕_ i e → IsGroup _≡_ _⊕_ i e
+leftGroupImpliesGroup _≡_ _⊕_ i e g = record
  { reflexive = IsGroupL.reflexive g
  ; symmetric = IsGroupL.symmetric g
  ; transitive = IsGroupL.transitive g
@@ -159,6 +159,6 @@ leftOperationsSufficient _≡_ _⊕_ i e g = record
  ; associative = IsGroupL.associative g
  ; identityL = IsGroupL.identityL g
  ; inverseL = IsGroupL.inverseL g
- ; identityR = proof₂ _≡_ _⊕_ i e g
- ; inverseR = proof₁ _≡_ _⊕_ i e g
+ ; identityR = GrpLImpliesIdR _≡_ _⊕_ i e g
+ ; inverseR = GrpLImpliesInvR _≡_ _⊕_ i e g
  }
