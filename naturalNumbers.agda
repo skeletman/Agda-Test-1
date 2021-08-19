@@ -2,6 +2,7 @@ module naturalNumbers where
 
 open import Agda.Builtin.Nat
 open import Agda.Builtin.Bool
+open import Agda.Builtin.Equality
 
 Rel : Set → Set1
 Rel A = A → A → Set0
@@ -50,7 +51,12 @@ Commutes {A} _≡_ _⊕_ = {a b : A} → (a ⊕ b) ≡ (b ⊕ a)
 Associative : {A : Set} → Rel A → Op₂ A → Set
 Associative {A} _≡_ _o_ = {a b c : A} → ((a o b) o c) ≡ (a o (b o c))
 
--- Proofs about equality
+-- Proofs about ≡
+
+eqqCong : {A B : Set} → (f : A → B) → {x y : A} → x ≡ y → f x ≡ f y
+eqqCong f refl = refl
+
+-- Proofs about ='
 
 equalsRefl : Reflexive _='_ 
 equalsRefl {0} = ZERO 
@@ -63,6 +69,16 @@ equalsSym (STEP m n p) = STEP n m (equalsSym p)
 equalsTrans : Transitive _='_
 equalsTrans ZERO ZERO = ZERO
 equalsTrans (STEP n m p) (STEP a b q) = STEP n b (equalsTrans p q)
+
+equalsImpliesEqq : {a b : Nat} → a ≡ b → a =' b
+equalsImpliesEqq refl = equalsRefl
+
+eqqImpliesEquals : {a b : Nat} → a =' b → a ≡ b
+eqqImpliesEquals ZERO = refl
+eqqImpliesEquals (STEP n m p) = eqqCong suc (eqqImpliesEquals p)
+
+equalsCong : (f : Nat → Nat) → {x y : Nat} → x =' y → f x =' f y
+equalsCong f p = equalsImpliesEqq (eqqCong f (eqqImpliesEquals p))
 
 -- Proofs about Addition
 addLeftSucFactor : (m n : Nat) → ((suc m) + n) =' suc (m + n)
@@ -91,16 +107,6 @@ addPreservesEq ZERO (STEP c d q) = STEP c d q
 addPreservesEq (STEP x y p) (STEP c d q) = STEP (x + suc c) (y + suc d) (addPreservesEq p (STEP c d q))
 
 -- Proofs about Multiplication
-multPreservesEqR : (n a b : Nat) → a =' b → (n * a) =' (n * b) 
-multPreservesEqR 0 a b ZERO = ZERO
-multPreservesEqR (suc n) a b ZERO = multPreservesEqR n zero zero ZERO
-multPreservesEqR 0 a b (STEP c d p) = ZERO
-multPreservesEqR (suc n) a b (STEP c d p) = {!  !}
-
-multPreservesEqL : (n a b : Nat) → a =' b → (a * n) =' (b * n) 
-multPreservesEqL n a b ZERO = ZERO
-multPreservesEqL 0 a b (STEP c d p) = multPreservesEqL zero c d p
-multPreservesEqL (suc n) a b (STEP c d p) = {!   !}
 
 multPreservesEq : {n m a b : Nat} → m =' n → a =' b → (m * a) =' (n * b)
 multPreservesEq ZERO q = ZERO
