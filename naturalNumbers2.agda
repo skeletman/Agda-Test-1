@@ -4,6 +4,9 @@ module naturalNumbers2 where
 open import Agda.Builtin.Bool
 open import Agda.Builtin.Equality
 
+data _∧_ (A B : Set) : Set where
+  <_,_> : A → B → A ∧ B
+
 data Nat : Set where
   zero : Nat
   suc  : Nat → Nat
@@ -47,6 +50,15 @@ Antisymmetric : {A : Set} → Rel A → Rel A → Set
 Antisymmetric {A} _≡_ _≦_ = {a b : A} → a ≦ b → b ≦ a → a ≡ b
 
 -- Operation Properties
+
+IdentityL : {A : Set} → Rel A → Op₂ A → A → Set
+IdentityL {A} _≡_ _⊕_ e = {a : A} → (e ⊕ a) ≡ a 
+
+IdentityR : {A : Set} → Rel A → Op₂ A → A → Set
+IdentityR {A} _≡_ _⊕_ e = {a : A} → (a ⊕ e) ≡ a 
+
+Identity : {A : Set} → Rel A → Op₂ A → A → Set 
+Identity eq m e = (IdentityL eq m e) ∧ (IdentityR eq m e)
 
 Commutes : {A : Set} → Rel A → Op₂ A → Set
 Commutes {A} _≡_ _⊕_ = {a b : A} → (a ⊕ b) ≡ (b ⊕ a)
@@ -113,7 +125,9 @@ addCommutes {suc m} {n} = trans {Nat} (congruence suc (addCommutes {m} {n})) (sy
 addAssoc : Associative _≡_ _+_
 addAssoc {0} {m} {n} = refl
 addAssoc {suc l} {m} {n} = congruence suc (addAssoc {l} {m} {n})
- 
+
+addIdentity : Identity _≡_ _+_ 0
+addIdentity = < (λ {a} → refl) , (λ {a} → addCommutes {a} {zero}) >
 -- Proofs about Mult
 
 multRightSucFactor : (m n : Nat) → m * (suc n) ≡ (m * n) + m
@@ -135,3 +149,6 @@ multDistOverAddR {l} {m} {n} = trans (multCommutes {l + m} {n}) (trans (trans (m
 multAssoc : Associative _≡_ _*_
 multAssoc {0} {m} {n} = refl
 multAssoc {suc l} {m} {n} = trans (multDistOverAddR {l * m} {m} {n}) (congruence (λ x → x + (m * n)) {(l * m) * n} {l * (m * n)} (multAssoc {l} {m} {n}))
+
+multIdentity : Identity _≡_ _*_ 1
+multIdentity = < (λ {a} → refl) , (λ {a} → multCommutes {a} {1}) >
