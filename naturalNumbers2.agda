@@ -15,10 +15,12 @@ data Nat : Set where
 _+_ : Nat → Nat → Nat
 zero  + m = m
 suc n + m = suc (n + m)
+{-# BUILTIN NATPLUS _+_ #-}
 
 _*_ : Nat → Nat → Nat
 zero  * m = zero
 suc n * m = (n * m) + m
+{-# BUILTIN NATTIMES _*_ #-}
 
 Rel : Set → Set1
 Rel A = A → A → Set0
